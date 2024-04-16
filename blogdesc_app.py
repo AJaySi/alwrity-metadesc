@@ -56,14 +56,11 @@ def main():
     st.markdown(hide_streamlit_footer, unsafe_allow_html=True)
 
     # Sidebar input for OpenAI API Key
-    openai_api_key = st.sidebar.text_input("**#### Enter OpenAI API Key**", type="password")
     st.sidebar.image("img/alwrity.jpeg", use_column_width=True)
     st.sidebar.markdown(f"🧕 :red[Checkout Alwrity], complete **AI writer & Blogging solution**:[Alwrity](https://alwrity.netlify.app)")
     
     # Title and description
     st.title("✍️ Alwrity - AI Blog Meta description Generator")
-    data_oracle = import_json(r"lottie_files/powerful_robot.json")
-    st_lottie(data_oracle, height=400, key="oracle")
     st.markdown('''
                 Generate SEO optimized Blog Meta description - powered by AI (OpenAI GPT-3, Gemini Pro).
                 Implemented by [Alwrity](https://alwrity.netlify.app).
