@@ -108,65 +108,36 @@ def generate_blog_metadesc(keywords, summary, tone, search_type):
         Respond with 3 compelling and concise meta descriptions, approximately 155-160 characters long, that incorporates the target keywords, reflects the blog post content, resonates with the target audience, and entices users to click through to read the full article.
     """
     with st.spinner("Calling Gemini to craft 3 Meta descriptions for you.."):
-        blog_metadesc = generate_text_with_exception_handling(prompt)
+        blog_metadesc = gemini_text_response(prompt)
     
     return blog_metadesc
 
 
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
-def generate_text_with_exception_handling(prompt):
-    """
-    Generates text using the Gemini model with exception handling.
-
-    Args:
-        api_key (str): Your Google Generative AI API key.
-        prompt (str): The prompt for text generation.
-
-    Returns:
-        str: The generated text.
-    """
-
+def gemini_text_response(prompt):
+    """ Common functiont to get response from gemini pro Text. """
     try:
         genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+    except Exception as err:
+        st.error(f"Failed to configure Gemini: {err}")
+    # Set up the model
+    generation_config = {
+        "temperature": 0.6,
+        "top_p": 0.3,
+        "top_k": 1,
+        "max_output_tokens": 1024
+    }
+    # FIXME: Expose model_name in main_config
+    model = genai.GenerativeModel(model_name="gemini-1.0-pro", generation_config=generation_config)
+    try:
+        # text_response = []
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as err:
+        st.error(response)
+        st.error(f"Failed to get response from Gemini: {err}. Retrying.")
 
-        generation_config = {
-            "temperature": 1,
-            "top_p": 0.95,
-            "top_k": 0,
-            "max_output_tokens": 8192,
-        }
-
-        safety_settings = [
-            {
-                "category": "HARM_CATEGORY_HARASSMENT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_HATE_SPEECH",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-        ]
-
-        model = genai.GenerativeModel(model_name="gemini-1.5-pro-latest",
-                                      generation_config=generation_config,
-                                      safety_settings=safety_settings)
-
-        convo = model.start_chat(history=[])
-        convo.send_message(prompt)
-        return convo.last.text
-
-    except Exception as e:
-        st.exception(f"An unexpected error occurred: {e}")
-        return None
 
 
 if __name__ == "__main__":
