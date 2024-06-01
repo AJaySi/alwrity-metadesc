@@ -19,6 +19,10 @@ def main():
     # Remove the extra spaces from margin top.
     st.markdown("""
         <style>
+                body {
+                background-color: #333;
+                color: #fff;
+                }
                .block-container {
                     padding-top: 0rem;
                     padding-bottom: 0rem;
